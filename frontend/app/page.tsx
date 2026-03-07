@@ -17,7 +17,7 @@ function HomeInner() {
   const [errorMsg, setErrorMsg] = useState("");
   const [currentTicker, setCurrentTicker] = useState("");
 
-  const handleSearch = async (ticker: string) => {
+  const handleSearch = async (ticker: string, silent = false) => {
     setLoading(true);
     setErrorMsg("");
     setData(null);
@@ -26,8 +26,10 @@ function HomeInner() {
       const result = await fetchStockData(ticker);
       setData(result);
       setCurrentTicker(ticker);
-      saveRecent(ticker, result.name);
-      router.replace("?ticker=" + ticker);
+      if (!silent) {
+        saveRecent(ticker, result.name);
+        router.replace("?ticker=" + ticker);
+      }
     } catch (err: any) {
       setErrorMsg(err.message || "Something went wrong. Please try again.");
     } finally {
@@ -35,12 +37,10 @@ function HomeInner() {
     }
   };
 
-  // Auto-load ticker from URL on mount
+  // Restore from URL on mount — silent so it doesn't increment count or touch the URL
   useEffect(() => {
     const ticker = searchParams.get("ticker");
-    if (ticker) {
-      handleSearch(ticker.toUpperCase());
-    }
+    if (ticker) handleSearch(ticker.toUpperCase(), true);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 

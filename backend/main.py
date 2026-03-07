@@ -139,7 +139,13 @@ def analyze(ticker: str, request: Request):
 
     hist_tail = hist.tail(126)
     chart_data = [
-        {"date": str(ts.date()), "close": round(float(row["Close"]), 2)}
+        {
+            "date": str(ts.date()),
+            "open":  round(float(row["Open"]),  2),
+            "high":  round(float(row["High"]),  2),
+            "low":   round(float(row["Low"]),   2),
+            "close": round(float(row["Close"]), 2),
+        }
         for ts, row in hist_tail.iterrows()
     ]
 

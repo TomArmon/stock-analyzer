@@ -19,7 +19,7 @@ export interface StockData {
   sma200_diff: number | null;
   sma200_pct: number | null;
   rs_rating: number | null;
-  chart_data: { date: string; close: number }[];
+  chart_data: { date: string; open: number; high: number; low: number; close: number }[];
   sentiment: {
     sentiment_label: string;
     bullish_pct: number | null;

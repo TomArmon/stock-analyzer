@@ -1,4 +1,5 @@
 import asyncio
+import hashlib
 import os
 import time
 from collections import defaultdict
@@ -13,6 +14,7 @@ from fastapi.responses import JSONResponse
 load_dotenv()
 
 from fetch import get_stock_data
+from logger import get_stats, log_search
 from rs_cache import get_universe_scores, rate_ticker
 from sentiment import get_sentiment
 
@@ -102,10 +104,14 @@ def analyze(ticker: str, request: Request):
     ip = _get_ip(request)
     _check_rate_limit(ip)
 
+    start = time.time()
     ticker = ticker.upper().strip()
+    ip_hash = hashlib.sha256(ip.encode()).hexdigest()[:16]
 
     # Strict input validation
     if not ticker.isalpha() or not (1 <= len(ticker) <= 5):
+        elapsed = int((time.time() - start) * 1000)
+        log_search(ticker, ip_hash, success=False, response_time_ms=elapsed, error_type="400")
         raise HTTPException(
             status_code=400,
             detail="Invalid ticker. Use 1-5 English letters only."
@@ -113,6 +119,8 @@ def analyze(ticker: str, request: Request):
 
     data = get_stock_data(ticker)
     if data is None:
+        elapsed = int((time.time() - start) * 1000)
+        log_search(ticker, ip_hash, success=False, response_time_ms=elapsed, error_type="404")
         raise HTTPException(
             status_code=404,
             detail=f"No data found for '{ticker}'. Check the symbol and try again."
@@ -129,4 +137,11 @@ def analyze(ticker: str, request: Request):
         "headlines": [],
     }
 
+    elapsed = int((time.time() - start) * 1000)
+    log_search(ticker, ip_hash, success=True, response_time_ms=elapsed)
     return {**data, "rs_rating": rs_rating, "sentiment": sentiment}
+
+
+@app.get("/stats")
+def stats():
+    return get_stats()

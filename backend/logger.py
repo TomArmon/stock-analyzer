@@ -1,0 +1,64 @@
+import os
+from supabase import create_client, Client
+
+_client: Client | None = None
+
+
+def _get_client() -> Client | None:
+    global _client
+    if _client is None:
+        url = os.getenv("SUPABASE_URL", "")
+        key = os.getenv("SUPABASE_KEY", "")
+        if url and key:
+            _client = create_client(url, key)
+    return _client
+
+
+def log_search(
+    ticker: str,
+    ip_hash: str,
+    success: bool,
+    response_time_ms: int,
+    error_type: str | None = None,
+) -> None:
+    try:
+        client = _get_client()
+        if client is None:
+            return
+        client.table("search_log").insert({
+            "ticker": ticker,
+            "ip_hash": ip_hash,
+            "success": success,
+            "response_time_ms": response_time_ms,
+            "error_type": error_type,
+        }).execute()
+    except Exception:
+        pass  # Never let logging break a request
+
+
+def get_stats() -> dict:
+    client = _get_client()
+    if client is None:
+        return {"error": "Supabase not configured"}
+
+    rows = client.table("search_log").select("*").execute().data
+
+    total = len(rows)
+    successes = sum(1 for r in rows if r["success"])
+    success_rate = round(successes / total * 100, 1) if total else 0
+
+    ticker_counts: dict[str, int] = {}
+    for r in rows:
+        ticker_counts[r["ticker"]] = ticker_counts.get(r["ticker"], 0) + 1
+    top_tickers = sorted(ticker_counts.items(), key=lambda x: x[1], reverse=True)[:10]
+
+    last_10 = sorted(rows, key=lambda r: r["searched_at"], reverse=True)[:10]
+
+    return {
+        "total_searches": total,
+        "success_rate_pct": success_rate,
+        "top_tickers": [{"ticker": t, "count": c} for t, c in top_tickers],
+        "last_10_searches": [
+            {"ticker": r["ticker"], "searched_at": r["searched_at"]} for r in last_10
+        ],
+    }

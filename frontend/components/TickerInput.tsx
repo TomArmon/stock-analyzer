@@ -50,10 +50,10 @@ export default function TickerInput({ onSearch, loading }: Props) {
             maxLength={5}
             autoFocus
             disabled={loading}
-            className={`w-full px-4 py-3 text-2xl font-mono tracking-widest border-2 rounded-xl outline-none transition-colors bg-white text-slate-800 placeholder-slate-300
+            className={`w-full px-4 py-3 text-2xl font-mono tracking-widest border-2 rounded-xl outline-none transition-colors bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 placeholder-slate-300 dark:placeholder-slate-600
               ${error
                 ? "border-red-400 focus:border-red-500"
-                : "border-slate-200 focus:border-blue-500"
+                : "border-slate-200 dark:border-slate-600 focus:border-blue-500 dark:focus:border-blue-400"
               }`}
           />
           {error && (

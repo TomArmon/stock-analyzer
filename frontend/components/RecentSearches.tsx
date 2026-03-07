@@ -69,10 +69,10 @@ export default function RecentSearches({ onSelect, exclude }: Props) {
       <div className="mt-4">
         {/* Header row */}
         <div className="flex items-center justify-between mb-2">
-          <p className="text-xs text-slate-400 uppercase tracking-wide font-medium">Recent</p>
+          <p className="text-xs text-slate-400 dark:text-slate-500 uppercase tracking-wide font-medium">Recent</p>
           <button
             onClick={() => setShowConfirm(true)}
-            className="flex items-center gap-1 text-xs text-slate-400 hover:text-red-400 transition-colors"
+            className="flex items-center gap-1 text-xs text-slate-400 dark:text-slate-500 hover:text-red-400 dark:hover:text-red-400 transition-colors"
           >
             <Trash2 size={11} />
             Clear
@@ -103,7 +103,7 @@ export default function RecentSearches({ onSelect, exclude }: Props) {
                   className={`px-3 py-1 rounded-full text-sm font-medium transition-colors ${
                     isCurrent
                       ? "bg-blue-600 text-white"
-                      : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+                      : "bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-600"
                   }`}
                 >
                   {ticker}
@@ -125,20 +125,20 @@ export default function RecentSearches({ onSelect, exclude }: Props) {
       {/* Confirmation modal */}
       {showConfirm && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
-          <div className="bg-white rounded-2xl shadow-xl p-6 w-80 mx-4">
-            <div className="flex items-center justify-center w-10 h-10 rounded-full bg-red-50 mx-auto mb-4">
+          <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-xl p-6 w-80 mx-4">
+            <div className="flex items-center justify-center w-10 h-10 rounded-full bg-red-50 dark:bg-red-900/30 mx-auto mb-4">
               <Trash2 size={18} className="text-red-400" />
             </div>
-            <h3 className="text-base font-semibold text-slate-800 text-center mb-1">
+            <h3 className="text-base font-semibold text-slate-800 dark:text-slate-100 text-center mb-1">
               Clear search history?
             </h3>
-            <p className="text-sm text-slate-400 text-center mb-6">
+            <p className="text-sm text-slate-400 dark:text-slate-500 text-center mb-6">
               This will remove all {recents.length} recent search{recents.length !== 1 ? "es" : ""}. This can't be undone.
             </p>
             <div className="flex gap-3">
               <button
                 onClick={() => setShowConfirm(false)}
-                className="flex-1 px-4 py-2.5 rounded-xl border border-slate-200 text-sm font-medium text-slate-600 hover:bg-slate-50 transition-colors"
+                className="flex-1 px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-600 text-sm font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
               >
                 Cancel
               </button>

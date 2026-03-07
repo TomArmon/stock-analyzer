@@ -2,7 +2,11 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
-import { CandlestickChart, Search, Star, BarChart2, ChevronLeft, ChevronRight } from "lucide-react";
+import { useTheme } from "next-themes";
+import {
+  CandlestickChart, Search, Star, BarChart2,
+  ChevronLeft, ChevronRight, Sun, Moon, Monitor,
+} from "lucide-react";
 
 const NAV = [
   { href: "/",          icon: Search,    label: "Search"    },
@@ -10,11 +14,20 @@ const NAV = [
   { href: "/stats",     icon: BarChart2, label: "Stats"     },
 ];
 
+const THEMES = [
+  { value: "light",  icon: Sun,     label: "Light"  },
+  { value: "system", icon: Monitor, label: "System" },
+  { value: "dark",   icon: Moon,    label: "Dark"   },
+];
+
 export default function Sidebar() {
   const pathname = usePathname();
   const [collapsed, setCollapsed] = useState(false);
+  const [mounted, setMounted] = useState(false);
+  const { theme, setTheme } = useTheme();
 
   useEffect(() => {
+    setMounted(true);
     if (localStorage.getItem("sidebarCollapsed") === "true") setCollapsed(true);
   }, []);
 
@@ -24,22 +37,36 @@ export default function Sidebar() {
       return !prev;
     });
 
+  const cycleTheme = () => {
+    const idx = THEMES.findIndex((t) => t.value === theme);
+    setTheme(THEMES[(idx + 1) % THEMES.length].value);
+  };
+
+  const currentTheme = mounted
+    ? (THEMES.find((t) => t.value === theme) ?? THEMES[1])
+    : THEMES[1];
+  const ThemeIcon = currentTheme.icon;
+
+  const btnBase =
+    "flex items-center gap-2 px-3 py-2.5 rounded-lg transition-colors text-sm " +
+    "text-slate-400 dark:text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-800 hover:text-slate-600 dark:hover:text-slate-300";
+
   return (
     <aside
-      className={`flex flex-col h-screen sticky top-0 shrink-0 bg-white border-r border-slate-100 transition-all duration-200 ${
+      className={`flex flex-col h-screen sticky top-0 shrink-0 bg-white dark:bg-slate-900 border-r border-slate-100 dark:border-slate-800 transition-all duration-200 ${
         collapsed ? "w-16" : "w-56"
       }`}
     >
       {/* Brand — links to home */}
       <Link
         href="/"
-        className={`flex items-center gap-3 px-4 py-5 border-b border-slate-100 hover:bg-slate-50 transition-colors ${
+        className={`flex items-center gap-3 px-4 py-5 border-b border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors ${
           collapsed ? "justify-center" : ""
         }`}
       >
-        <CandlestickChart size={22} className="text-blue-600 shrink-0" />
+        <CandlestickChart size={22} className="text-blue-500 shrink-0" />
         {!collapsed && (
-          <span className="font-bold text-slate-800 text-sm leading-tight">
+          <span className="font-bold text-slate-800 dark:text-slate-100 text-sm leading-tight">
             Stock<br />Analyzer
           </span>
         )}
@@ -57,8 +84,8 @@ export default function Sidebar() {
                 collapsed ? "justify-center" : ""
               } ${
                 active
-                  ? "bg-blue-50 text-blue-600"
-                  : "text-slate-500 hover:bg-slate-50 hover:text-slate-800"
+                  ? "bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400"
+                  : "text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 hover:text-slate-800 dark:hover:text-slate-200"
               }`}
             >
               <Icon size={18} className="shrink-0" />
@@ -68,16 +95,23 @@ export default function Sidebar() {
         })}
       </nav>
 
-      {/* Collapse toggle — sticky at bottom */}
-      <div className="shrink-0 border-t border-slate-100 p-2">
+      {/* Sticky bottom — collapse + theme toggle */}
+      <div className={`shrink-0 border-t border-slate-100 dark:border-slate-800 p-2 flex gap-1`}>
         <button
           onClick={toggle}
-          className={`flex items-center gap-3 w-full px-3 py-2.5 rounded-lg text-slate-400 hover:bg-slate-50 hover:text-slate-600 transition-colors text-sm ${
-            collapsed ? "justify-center" : ""
-          }`}
+          className={`${btnBase} ${collapsed ? "flex-1 justify-center" : "flex-1"}`}
         >
           {collapsed ? <ChevronRight size={18} /> : <ChevronLeft size={18} />}
           {!collapsed && <span>Collapse</span>}
+        </button>
+
+        <button
+          onClick={cycleTheme}
+          title={`Theme: ${currentTheme.label}`}
+          className={`${btnBase} ${collapsed ? "flex-1 justify-center" : ""}`}
+        >
+          <ThemeIcon size={18} className="shrink-0" />
+          {!collapsed && <span>{currentTheme.label}</span>}
         </button>
       </div>
     </aside>

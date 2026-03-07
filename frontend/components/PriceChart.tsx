@@ -1,5 +1,6 @@
 "use client";
 import { useState, useRef, useEffect } from "react";
+import { useTheme } from "next-themes";
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
 
 interface ChartPoint {
@@ -20,7 +21,7 @@ function formatDate(dateStr: string) {
 }
 
 // ─── Pure-SVG candle chart (no recharts internals = no crashes) ───────────────
-function CandleChart({ data }: { data: ChartPoint[] }) {
+function CandleChart({ data, isDark }: { data: ChartPoint[]; isDark: boolean }) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [w, setW] = useState(500);
   const [hoverIdx, setHoverIdx] = useState<number | null>(null);
@@ -75,17 +76,17 @@ function CandleChart({ data }: { data: ChartPoint[] }) {
       >
         {/* Horizontal grid lines */}
         {yTicks.map((v) => (
-          <line key={v} x1={mL} x2={w - mR} y1={yAt(v)} y2={yAt(v)} stroke="#f1f5f9" strokeWidth={1} />
+          <line key={v} x1={mL} x2={w - mR} y1={yAt(v)} y2={yAt(v)} stroke={isDark ? "#1e293b" : "#f1f5f9"} strokeWidth={1} />
         ))}
         {/* Y-axis labels */}
         {yTicks.map((v) => (
-          <text key={v} x={w - mR + 6} y={yAt(v) + 4} fontSize={11} fill="#94a3b8">
+          <text key={v} x={w - mR + 6} y={yAt(v) + 4} fontSize={11} fill={isDark ? "#475569" : "#94a3b8"}>
             ${v.toFixed(0)}
           </text>
         ))}
         {/* X-axis labels */}
         {xTickIdxs.map((i) => (
-          <text key={i} x={xAt(i)} y={H - 6} fontSize={11} fill="#94a3b8" textAnchor="middle">
+          <text key={i} x={xAt(i)} y={H - 6} fontSize={11} fill={isDark ? "#475569" : "#94a3b8"} textAnchor="middle">
             {formatDate(data[i].date)}
           </text>
         ))}
@@ -108,7 +109,7 @@ function CandleChart({ data }: { data: ChartPoint[] }) {
           <line
             x1={xAt(hoverIdx)} x2={xAt(hoverIdx)}
             y1={mT} y2={H - mB}
-            stroke="#94a3b8" strokeWidth={1} strokeDasharray="4 4"
+            stroke={isDark ? "#475569" : "#94a3b8"} strokeWidth={1} strokeDasharray="4 4"
           />
         )}
       </svg>
@@ -117,19 +118,20 @@ function CandleChart({ data }: { data: ChartPoint[] }) {
       {hov && (
         <div style={{
           position: "absolute", top: 8, left: tooltipX,
-          background: "#fff", border: "1px solid #e2e8f0",
+          background: isDark ? "#1e293b" : "#fff",
+          border: `1px solid ${isDark ? "#334155" : "#e2e8f0"}`,
           borderRadius: 8, padding: "8px 12px", fontSize: 12,
-          pointerEvents: "none", boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
+          pointerEvents: "none", boxShadow: "0 2px 8px rgba(0,0,0,0.15)",
         }}>
-          <p style={{ fontWeight: 600, color: "#334155", marginBottom: 4 }}>
+          <p style={{ fontWeight: 600, color: isDark ? "#e2e8f0" : "#334155", marginBottom: 4 }}>
             {new Date(hov.date + "T00:00:00").toLocaleDateString("en-US", {
               month: "short", day: "numeric", year: "numeric",
             })}
           </p>
-          <p style={{ color: "#64748b" }}>O: <strong>${hov.open.toFixed(2)}</strong></p>
+          <p style={{ color: isDark ? "#94a3b8" : "#64748b" }}>O: <strong>${hov.open.toFixed(2)}</strong></p>
           <p style={{ color: "#22c55e" }}>H: <strong>${hov.high.toFixed(2)}</strong></p>
           <p style={{ color: "#ef4444" }}>L: <strong>${hov.low.toFixed(2)}</strong></p>
-          <p style={{ color: "#334155" }}>C: <strong>${hov.close.toFixed(2)}</strong></p>
+          <p style={{ color: isDark ? "#e2e8f0" : "#334155" }}>C: <strong>${hov.close.toFixed(2)}</strong></p>
         </div>
       )}
     </div>
@@ -139,9 +141,13 @@ function CandleChart({ data }: { data: ChartPoint[] }) {
 // ─── Main component ───────────────────────────────────────────────────────────
 export default function PriceChart({ data }: Props) {
   const [mode, setMode] = useState<"area" | "candle">("area");
+  const [mounted, setMounted] = useState(false);
+  const { resolvedTheme } = useTheme();
+  useEffect(() => setMounted(true), []);
 
   if (!data || data.length === 0) return null;
 
+  const isDark = mounted && resolvedTheme === "dark";
   const isUp = data[data.length - 1].close >= data[0].close;
   const color = isUp ? "#22c55e" : "#ef4444";
   const gradientId = isUp ? "pcGreen" : "pcRed";
@@ -150,23 +156,34 @@ export default function PriceChart({ data }: Props) {
   const ticks: string[] = [];
   for (let i = 0; i < data.length; i += step) ticks.push(data[i].date);
 
+  const tickColor = isDark ? "#475569" : "#94a3b8";
+  const tooltipStyle = {
+    borderRadius: 8,
+    border: `1px solid ${isDark ? "#334155" : "#e2e8f0"}`,
+    fontSize: 12,
+    background: isDark ? "#1e293b" : "#fff",
+    color: isDark ? "#e2e8f0" : "#334155",
+  };
+
   const axisProps = {
-    tick: { fontSize: 11, fill: "#94a3b8" } as const,
+    tick: { fontSize: 11, fill: tickColor } as const,
     axisLine: false as const,
     tickLine: false as const,
   };
 
   return (
-    <div className="bg-white rounded-2xl shadow-sm p-4">
+    <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm p-4">
       <div className="flex items-center justify-between mb-3">
-        <p className="text-xs text-slate-400 uppercase tracking-wide">6-Month Price</p>
-        <div className="flex gap-0.5 bg-slate-100 rounded-lg p-0.5">
+        <p className="text-xs text-slate-400 dark:text-slate-500 uppercase tracking-wide">6-Month Price</p>
+        <div className="flex gap-0.5 bg-slate-100 dark:bg-slate-700 rounded-lg p-0.5">
           {(["area", "candle"] as const).map((m) => (
             <button
               key={m}
               onClick={() => setMode(m)}
               className={`px-3 py-1 rounded-md text-xs font-medium transition-colors ${
-                mode === m ? "bg-white text-slate-800 shadow-sm" : "text-slate-400 hover:text-slate-600"
+                mode === m
+                  ? "bg-white dark:bg-slate-600 text-slate-800 dark:text-slate-100 shadow-sm"
+                  : "text-slate-400 hover:text-slate-600 dark:hover:text-slate-300"
               }`}
             >
               {m === "area" ? "Area" : "Candles"}
@@ -199,7 +216,7 @@ export default function PriceChart({ data }: Props) {
                   month: "short", day: "numeric", year: "numeric",
                 })
               }
-              contentStyle={{ borderRadius: 8, border: "1px solid #e2e8f0", fontSize: 12 }}
+              contentStyle={tooltipStyle}
             />
             <Area
               type="monotone"
@@ -213,7 +230,7 @@ export default function PriceChart({ data }: Props) {
           </AreaChart>
         </ResponsiveContainer>
       ) : (
-        <CandleChart data={data} />
+        <CandleChart data={data} isDark={isDark} />
       )}
     </div>
   );

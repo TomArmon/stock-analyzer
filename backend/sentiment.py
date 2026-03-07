@@ -23,22 +23,20 @@ def get_sentiment(ticker: str, api_key: str) -> dict:
             _from=week_ago.strftime("%Y-%m-%d"),
             to=today.strftime("%Y-%m-%d"),
         )
-        print(f"[sentiment] company_news count for {ticker}: {len(news) if news else 0}")
         headlines = [a.get("headline", "") for a in news[:3] if a.get("headline")]
-    except Exception as e:
-        print(f"[sentiment] company_news error for {ticker}: {e}")
+    except Exception:
+        pass
 
     bullish_pct = None
     sentiment_label = "N/A"
     try:
         data = client.news_sentiment(ticker)
-        print(f"[sentiment] raw response for {ticker}: {data}")
         raw = data.get("sentiment", {}).get("bullishPercent")
         if raw is not None:
             bullish_pct = round(raw * 100, 1)
             sentiment_label = _sentiment_label(raw)
-    except Exception as e:
-        print(f"[sentiment] news_sentiment error for {ticker}: {e}")
+    except Exception:
+        pass
 
     return {
         "sentiment_label": sentiment_label,

@@ -139,14 +139,16 @@ export default function StockReport({ data }: { data: StockData }) {
       {/* News & Sentiment */}
       <div className="px-6 py-5">
         <h3 className="text-xs font-semibold text-slate-400 uppercase tracking-widest mb-3">News & Sentiment</h3>
-        <div className="flex items-center gap-2 mb-3 flex-wrap">
-          <span className={`px-3 py-1 rounded-full text-xs font-semibold ${sentimentColor}`}>
-            {data.sentiment.sentiment_label}
-          </span>
-          {data.sentiment.bullish_pct !== null && (
-            <span className="text-sm text-slate-500">{data.sentiment.bullish_pct}% bullish</span>
-          )}
-        </div>
+        {data.sentiment.sentiment_label !== "N/A" && (
+          <div className="flex items-center gap-2 mb-3 flex-wrap">
+            <span className={`px-3 py-1 rounded-full text-xs font-semibold ${sentimentColor}`}>
+              {data.sentiment.sentiment_label}
+            </span>
+            {data.sentiment.bullish_pct !== null && (
+              <span className="text-sm text-slate-500">{data.sentiment.bullish_pct}% bullish</span>
+            )}
+          </div>
+        )}
         {data.sentiment.headlines.length > 0 ? (
           <ul className="space-y-2">
             {data.sentiment.headlines.map((h, i) => (

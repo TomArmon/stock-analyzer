@@ -137,9 +137,15 @@ def analyze(ticker: str, request: Request):
         "headlines": [],
     }
 
+    hist_tail = hist.tail(126)
+    chart_data = [
+        {"date": str(ts.date()), "close": round(float(row["Close"]), 2)}
+        for ts, row in hist_tail.iterrows()
+    ]
+
     elapsed = int((time.time() - start) * 1000)
     log_search(ticker, ip_hash, success=True, response_time_ms=elapsed)
-    return {**data, "rs_rating": rs_rating, "sentiment": sentiment}
+    return {**data, "rs_rating": rs_rating, "chart_data": chart_data, "sentiment": sentiment}
 
 
 @app.get("/stats")

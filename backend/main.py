@@ -22,6 +22,9 @@ executor = ThreadPoolExecutor(max_workers=4)
 FINNHUB_KEY = os.getenv("FINNHUB_API_KEY", "")
 ALLOWED_ORIGIN = os.getenv("ALLOWED_ORIGIN", "https://stock-analyzer-sand-nu.vercel.app")
 
+print(f"[startup] FINNHUB_API_KEY set: {bool(FINNHUB_KEY)}")
+print(f"[startup] ALLOWED_ORIGIN: {ALLOWED_ORIGIN}")
+
 # ── Rate limiting ─────────────────────────────────────────────────────────────
 # Tracks (ip -> list of request timestamps within the window)
 RATE_LIMIT_REQUESTS = 10       # max requests per IP

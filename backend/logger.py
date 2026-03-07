@@ -1,5 +1,8 @@
+import logging
 import os
 from supabase import create_client, Client
+
+log = logging.getLogger(__name__)
 
 _client: Client | None = None
 
@@ -32,8 +35,8 @@ def log_search(
             "response_time_ms": response_time_ms,
             "error_type": error_type,
         }).execute()
-    except Exception:
-        pass  # Never let logging break a request
+    except Exception as e:
+        log.error("Supabase log_search failed: %s", e)
 
 
 def get_stats() -> dict:

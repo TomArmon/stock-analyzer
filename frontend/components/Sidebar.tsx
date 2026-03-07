@@ -26,7 +26,7 @@ export default function Sidebar() {
 
   return (
     <aside
-      className={`flex flex-col shrink-0 bg-white border-r border-slate-100 transition-all duration-200 ${
+      className={`flex flex-col h-screen sticky top-0 shrink-0 bg-white border-r border-slate-100 transition-all duration-200 ${
         collapsed ? "w-16" : "w-56"
       }`}
     >
@@ -46,7 +46,7 @@ export default function Sidebar() {
       </Link>
 
       {/* Nav */}
-      <nav className="flex-1 py-4 space-y-1 px-2">
+      <nav className="flex-1 overflow-y-auto py-4 space-y-1 px-2">
         {NAV.map(({ href, icon: Icon, label }) => {
           const active = pathname === href;
           return (
@@ -68,8 +68,8 @@ export default function Sidebar() {
         })}
       </nav>
 
-      {/* Collapse toggle */}
-      <div className="border-t border-slate-100 p-2">
+      {/* Collapse toggle — sticky at bottom */}
+      <div className="shrink-0 border-t border-slate-100 p-2">
         <button
           onClick={toggle}
           className={`flex items-center gap-3 w-full px-3 py-2.5 rounded-lg text-slate-400 hover:bg-slate-50 hover:text-slate-600 transition-colors text-sm ${

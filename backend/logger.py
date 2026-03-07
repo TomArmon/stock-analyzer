@@ -14,7 +14,13 @@ def _get_client() -> Client | None:
         url = os.getenv("SUPABASE_URL", "")
         key = os.getenv("SUPABASE_KEY", "")
         if url and key:
-            _client = create_client(url, key)
+            try:
+                _client = create_client(url, key)
+                log.info("Supabase client created successfully")
+            except Exception as e:
+                log.error("Supabase create_client failed: %s", e)
+        else:
+            log.error("Supabase env vars missing: URL=%s KEY=%s", bool(url), bool(key))
     return _client
 
 

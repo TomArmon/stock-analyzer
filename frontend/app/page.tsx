@@ -26,7 +26,7 @@ function HomeInner() {
       const result = await fetchStockData(ticker);
       setData(result);
       setCurrentTicker(ticker);
-      saveRecent(ticker);
+      saveRecent(ticker, result.name);
       router.replace("?ticker=" + ticker);
     } catch (err: any) {
       setErrorMsg(err.message || "Something went wrong. Please try again.");

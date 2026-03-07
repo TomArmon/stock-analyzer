@@ -38,7 +38,9 @@ export interface StatsData {
 export async function fetchStats(): Promise<StatsData> {
   const res = await fetch(`${API_URL}/stats`);
   if (!res.ok) throw new Error("Failed to fetch stats");
-  return res.json();
+  const json = await res.json();
+  if (json.error) throw new Error(json.error);
+  return json;
 }
 
 export async function fetchStockData(ticker: string): Promise<StockData> {

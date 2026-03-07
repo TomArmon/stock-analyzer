@@ -2,7 +2,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
-import { TrendingUp, Search, Star, BarChart2, ChevronLeft, ChevronRight } from "lucide-react";
+import { CandlestickChart, Search, Star, BarChart2, ChevronLeft, ChevronRight } from "lucide-react";
 
 const NAV = [
   { href: "/",          icon: Search,    label: "Search"    },
@@ -30,19 +30,20 @@ export default function Sidebar() {
         collapsed ? "w-16" : "w-56"
       }`}
     >
-      {/* Brand */}
-      <div
-        className={`flex items-center gap-3 px-4 py-5 border-b border-slate-100 ${
+      {/* Brand — links to home */}
+      <Link
+        href="/"
+        className={`flex items-center gap-3 px-4 py-5 border-b border-slate-100 hover:bg-slate-50 transition-colors ${
           collapsed ? "justify-center" : ""
         }`}
       >
-        <TrendingUp size={22} className="text-blue-600 shrink-0" />
+        <CandlestickChart size={22} className="text-blue-600 shrink-0" />
         {!collapsed && (
           <span className="font-bold text-slate-800 text-sm leading-tight">
             Stock<br />Analyzer
           </span>
         )}
-      </div>
+      </Link>
 
       {/* Nav */}
       <nav className="flex-1 py-4 space-y-1 px-2">

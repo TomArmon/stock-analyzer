@@ -27,6 +27,20 @@ export interface StockData {
   };
 }
 
+export interface StatsData {
+  total_searches: number;
+  success_rate_pct: number;
+  today_searches: number;
+  top_tickers: { ticker: string; count: number }[];
+  last_10_searches: { ticker: string; searched_at: string }[];
+}
+
+export async function fetchStats(): Promise<StatsData> {
+  const res = await fetch(`${API_URL}/stats`);
+  if (!res.ok) throw new Error("Failed to fetch stats");
+  return res.json();
+}
+
 export async function fetchStockData(ticker: string): Promise<StockData> {
   const res = await fetch(`${API_URL}/analyze/${ticker}`);
   if (!res.ok) {

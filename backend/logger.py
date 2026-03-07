@@ -1,5 +1,6 @@
 import logging
 import os
+from datetime import date
 from supabase import create_client, Client
 
 log = logging.getLogger(__name__)
@@ -50,6 +51,9 @@ def get_stats() -> dict:
     successes = sum(1 for r in rows if r["success"])
     success_rate = round(successes / total * 100, 1) if total else 0
 
+    today_str = date.today().isoformat()
+    today_count = sum(1 for r in rows if r.get("searched_at", "").startswith(today_str))
+
     ticker_counts: dict[str, int] = {}
     for r in rows:
         ticker_counts[r["ticker"]] = ticker_counts.get(r["ticker"], 0) + 1
@@ -60,6 +64,7 @@ def get_stats() -> dict:
     return {
         "total_searches": total,
         "success_rate_pct": success_rate,
+        "today_searches": today_count,
         "top_tickers": [{"ticker": t, "count": c} for t, c in top_tickers],
         "last_10_searches": [
             {"ticker": r["ticker"], "searched_at": r["searched_at"]} for r in last_10

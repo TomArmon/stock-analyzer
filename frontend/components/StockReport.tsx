@@ -1,5 +1,8 @@
 "use client";
+import { useEffect, useState } from "react";
+import { Star } from "lucide-react";
 import { StockData } from "@/lib/api";
+import { isInWatchlist, toggleWatchlist } from "@/lib/watchlist";
 
 function fmtPrice(v: number): string {
   if (v >= 1000) return `$${v.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
@@ -31,6 +34,11 @@ interface MARow {
 }
 
 export default function StockReport({ data }: { data: StockData }) {
+  const [watched, setWatched] = useState(false);
+  useEffect(() => { setWatched(isInWatchlist(data.ticker)); }, [data.ticker]);
+
+  const handleWatchlist = () => setWatched(toggleWatchlist(data.ticker));
+
   const up = data.price_change >= 0;
   const volRatio = data.avg_volume_20d > 0 ? data.volume / data.avg_volume_20d : 1;
   const volPct = ((volRatio - 1) * 100).toFixed(0);
@@ -61,7 +69,19 @@ export default function StockReport({ data }: { data: StockData }) {
           <p className="text-xs font-semibold text-slate-400 uppercase tracking-widest mb-1">{data.ticker}</p>
           <h2 className="text-xl font-bold text-slate-800">{data.name}</h2>
         </div>
-        <div className="text-right">
+        <div className="flex items-start gap-3">
+          <button
+            onClick={handleWatchlist}
+            className="mt-1 p-1.5 rounded-lg hover:bg-slate-50 transition-colors"
+            title={watched ? "Remove from watchlist" : "Add to watchlist"}
+          >
+            <Star
+              size={18}
+              className={watched ? "text-amber-400" : "text-slate-300"}
+              fill={watched ? "currentColor" : "none"}
+            />
+          </button>
+          <div className="text-right">
           <p className="text-xs text-slate-400 mb-1">RS Rating</p>
           {data.rs_rating !== null ? (
             <p className={`text-2xl font-bold ${rsColor}`}>
@@ -70,6 +90,7 @@ export default function StockReport({ data }: { data: StockData }) {
           ) : (
             <p className="text-slate-400 text-sm">N/A</p>
           )}
+          </div>
         </div>
       </div>
 
